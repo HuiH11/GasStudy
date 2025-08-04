@@ -17,7 +17,11 @@ class AURA_API AAuraCharacter : public AAuraCharacterBase
 public:
 	AAuraCharacter();
 	virtual void PossessedBy(AController* NewController) override;
+
 	virtual void OnRep_PlayerState() override;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bIsTop = true;
 private:
 	void InitAbilityActorInfo();
 };

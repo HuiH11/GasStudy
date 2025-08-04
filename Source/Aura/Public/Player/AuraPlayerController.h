@@ -34,8 +34,13 @@ private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> MoveAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> TurnAction;
+	
 	void Move(const FInputActionValue& InputActionValue);
 
+	void Turn(const FInputActionValue& InputActionValue);
+	
 	void CursorTrace();
 
 	TScriptInterface<IEnemyInterface> LastActor;

@@ -5,6 +5,7 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Character/AuraCharacter.h"
 #include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
@@ -69,13 +70,18 @@ void AAuraPlayerController::BeginPlay()
 	check(Subsystem);
 	Subsystem->AddMappingContext(AuraContext, 0);
 
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Default;
+	APawn* ControlledPawn = GetPawn<APawn>();
+	AAuraCharacter* ControlledCharacter = Cast<AAuraCharacter>(ControlledPawn);
+	if (ControlledCharacter->bIsTop)
+	{
+		bShowMouseCursor = true;
+		DefaultMouseCursor = EMouseCursor::Default;
 
-	FInputModeGameAndUI InputModeData;
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputModeData.SetHideCursorDuringCapture(false);
-	SetInputMode(InputModeData);
+		FInputModeGameAndUI InputModeData;
+		InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputModeData.SetHideCursorDuringCapture(false);
+		SetInputMode(InputModeData);
+	}
 }
 
 void AAuraPlayerController::SetupInputComponent()
@@ -85,6 +91,7 @@ void AAuraPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	EnhancedInputComponent->BindAction(TurnAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Turn);
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -100,6 +107,16 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void AAuraPlayerController::Turn(const FInputActionValue& InputActionValue)
+{
+	FVector2D Scale = InputActionValue.Get<FVector2D>();
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		ControlledPawn->AddControllerPitchInput(-Scale.Y);
+		ControlledPawn->AddControllerYawInput(Scale.X);
 	}
 }
 
